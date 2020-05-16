@@ -33,6 +33,7 @@ var (
 		RunLogCollection string
 		ErrLogCollection string
 		Database         string
+		Timeout          int
 	}{}
 )
 
@@ -97,14 +98,14 @@ var mongoClient *mongo.Client
 var mongoIsConnection = false
 
 func connectMongodb() {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(MongoDBConfig.Timeout)*time.Second)
 	mongoClient, err := mongo.Connect(
 		ctx,
 		options.Client().
-			ApplyURI("mongodb://localhost:27017").
+			ApplyURI("mongodb://"+MongoDBConfig.Host).
 			SetAuth(options.Credential{
-				Username: "admin",
-				Password: "123456",
+				Username: MongoDBConfig.Username,
+				Password: MongoDBConfig.Password,
 			}))
 	if err != nil {
 		log.Fatalln("MongoDB连接失败 " + err.Error())
